@@ -28,7 +28,7 @@ jobs:
 
       - name: Build apl-builder
         working-directory: apl
-        run: cargo build --release -p apl-core --bin apl-builder
+        run: cargo build --release -p apl-builder
 
       - name: Run apl-builder
         env:
