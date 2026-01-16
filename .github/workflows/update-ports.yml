@@ -1,0 +1,48 @@
+# APL Ports - Update Index
+#
+# Runs the apl-builder to discover and index ports from vendor sources
+# (HashiCorp, AWS, Python, Node, etc.) and upload to R2.
+
+name: Update Ports Index
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  update-ports:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout ports
+        uses: actions/checkout@v4
+
+      - name: Checkout apl (for apl-builder binary)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/apl
+          path: apl
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build apl-builder
+        working-directory: apl
+        run: cargo build --release -p apl-core --bin apl-builder
+
+      - name: Run apl-builder
+        env:
+          APL_ARTIFACT_STORE_ENABLED: "true"
+          APL_ARTIFACT_STORE_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          APL_ARTIFACT_STORE_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          APL_ARTIFACT_STORE_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./apl/target/release/apl-builder --ports-dir . --output-dir output
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ports-index
+          path: output/
