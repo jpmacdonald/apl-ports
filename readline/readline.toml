@@ -1,0 +1,12 @@
+[package]
+strategy = "build"
+name = "readline"
+
+source_url = "https://git.savannah.gnu.org/git/readline.git"
+tag_pattern = "readline-{{version}}"
+dependencies = ["ncurses"]
+script = """
+./configure --prefix=$PREFIX --with-curses --disable-shared --enable-static
+make -j$JOBS
+make install
+"""

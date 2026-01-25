@@ -1,0 +1,11 @@
+[package]
+strategy = "build"
+name = "sqlite"
+
+source_url = "https://github.com/sqlite/sqlite"
+tag_pattern = "version-{{version}}"
+script = """
+./configure --prefix=$PREFIX --disable-shared --enable-static --enable-fts5 --enable-json1 --enable-session
+make -j$JOBS
+make install
+"""

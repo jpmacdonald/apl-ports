@@ -1,0 +1,12 @@
+[package]
+strategy = "build"
+name = "libffi"
+
+source_url = "https://github.com/libffi/libffi"
+tag_pattern = "v{{version}}"
+script = """
+[ -f configure ] || ./autogen.sh
+./configure --prefix=$PREFIX --disable-shared --enable-static
+make -j$JOBS
+make install
+"""

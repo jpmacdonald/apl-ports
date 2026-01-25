@@ -1,0 +1,18 @@
+[package]
+strategy = "build"
+name = "openssl@3.5"
+
+source_url = "https://github.com/openssl/openssl"
+tag_pattern = "openssl-{{version}}"
+version_pattern = "3.5.*"
+dependencies = ["zlib"]
+script = """
+if [ "$ARCH" = "aarch64" ]; then
+    PLATFORM="darwin64-arm64-cc"
+else
+    PLATFORM="darwin64-x86_64-cc"
+fi
+perl ./Configure --prefix=$PREFIX --with-zlib-lib=$PREFIX/lib --with-zlib-include=$PREFIX/include no-shared $PLATFORM
+make -j$JOBS
+make install_sw
+"""

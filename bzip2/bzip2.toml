@@ -1,0 +1,11 @@
+[package]
+strategy = "build"
+name = "bzip2"
+
+source_url = "https://sourceware.org/git/bzip2.git"
+tag_pattern = "bzip2-{{version}}"
+version_pattern = "1.0.*"
+script = """
+make -j$JOBS PREFIX=$PREFIX
+make install PREFIX=$PREFIX
+"""

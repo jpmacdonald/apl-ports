@@ -1,0 +1,28 @@
+[package]
+strategy = "build"
+name = "python"
+
+source_url = "https://github.com/python/cpython"
+tag_pattern = "v{{version}}"
+version_pattern = "3.12.*"
+dependencies = [
+    "openssl@3.5",
+    "sqlite",
+    "zlib",
+    "xz",
+    "libffi",
+    "readline",
+    "ncurses",
+]
+script = """
+export CPPFLAGS="-I$PREFIX/include"
+export LDFLAGS="-L$PREFIX/lib"
+./configure --prefix=$PREFIX \
+    --enable-optimizations \
+    --with-openssl=$PREFIX \
+    --with-system-ffi \
+    --with-readline=readline \
+    --with-zlib=$PREFIX
+make -j$JOBS
+make install
+"""

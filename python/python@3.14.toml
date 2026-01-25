@@ -1,0 +1,29 @@
+[package]
+strategy = "build"
+name = "python@3.14"
+
+source_url = "https://github.com/python/cpython"
+tag_pattern = "v{{version}}"
+version_pattern = "3.14.*"
+dependencies = [
+    "openssl@3",
+    "sqlite",
+    "zlib",
+    "xz",
+    "libffi",
+    "readline",
+    "ncurses",
+]
+script = """
+# Python 3.14 may require different build steps in the future
+export CPPFLAGS="-I$PREFIX/include"
+export LDFLAGS="-L$PREFIX/lib"
+./configure --prefix=$PREFIX \
+    --enable-optimizations \
+    --with-openssl=$PREFIX \
+    --with-system-ffi \
+    --with-readline=readline \
+    --with-zlib=$PREFIX
+make -j$JOBS
+make install
+"""

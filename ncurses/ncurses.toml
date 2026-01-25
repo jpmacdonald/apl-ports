@@ -1,0 +1,18 @@
+[package]
+strategy = "build"
+name = "ncurses"
+
+source_url = "https://github.com/mirror/ncurses"
+tag_pattern = "v{{version}}"
+script = """
+./configure --prefix=$PREFIX \
+    --without-shared \
+    --without-debug \
+    --without-ada \
+    --enable-widec \
+    --enable-static \
+    --disable-termcap \
+    --with-terminfo-dirs="$PREFIX/share/terminfo:/usr/share/terminfo"
+make -j$JOBS
+make install
+"""

@@ -1,0 +1,16 @@
+[package]
+strategy = "build"
+name = "pcre2"
+
+source_url = "https://github.com/PCRE2Project/pcre2"
+tag_pattern = "pcre2-{{version}}"
+version_pattern = "10.44*"
+script = """
+./autogen.sh
+./configure --prefix=$PREFIX \
+    --disable-shared \
+    --enable-static \
+    --enable-jit
+make -j$JOBS
+make install
+"""

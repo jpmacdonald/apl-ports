@@ -1,0 +1,23 @@
+[package]
+strategy = "build"
+name = "ruby"
+
+source_url = "https://github.com/ruby/ruby"
+tag_pattern = "v{{version}}"
+version_pattern = "3.4.*"
+dependencies = ["openssl@3.5", "zlib", "readline", "libyaml", "gmp"]
+script = """
+if [ -f configure ]; then
+    echo "Using existing configure"
+else
+    echo "Skipping autogen - configure not present"
+    echo "Note: Ruby releases include pre-generated configure"
+fi
+./configure --prefix=$PREFIX \
+    --with-openssl-dir=$PREFIX \
+    --with-readline-dir=$PREFIX \
+    --with-libyaml-dir=$PREFIX \
+    --disable-install-doc
+make -j$JOBS
+make install
+"""

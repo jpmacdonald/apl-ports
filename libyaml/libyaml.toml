@@ -1,0 +1,12 @@
+[package]
+strategy = "build"
+name = "libyaml"
+
+source_url = "https://github.com/yaml/libyaml"
+tag_pattern = "{{version}}"
+script = """
+[ -f configure ] || ./autogen.sh
+./configure --prefix=$PREFIX --disable-shared --enable-static
+make -j$JOBS
+make install
+"""

@@ -1,0 +1,15 @@
+[package]
+strategy = "build"
+name = "gmp"
+
+source_url = "https://github.com/alisw/GMP"
+tag_pattern = "v{{version}}"
+version_pattern = "6.3.*"
+script = """
+./configure --prefix=$PREFIX \
+    --disable-shared \
+    --enable-static \
+    --enable-cxx
+make -j$JOBS
+make install
+"""
