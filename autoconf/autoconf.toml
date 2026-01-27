@@ -1,0 +1,14 @@
+[package]
+strategy = "build"
+name = "autoconf"
+
+source_url = "https://git.savannah.gnu.org/git/autoconf.git"
+tag_pattern = "v{{version}}"
+version_pattern = "2.71"
+download_url_template = "https://ftp.gnu.org/gnu/autoconf/autoconf-{{version}}.tar.gz"
+dependencies = ["m4"]
+script = """
+./configure --prefix=$PREFIX
+make -j$JOBS
+make install
+"""

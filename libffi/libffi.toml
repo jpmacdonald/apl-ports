@@ -4,6 +4,7 @@ name = "libffi"
 
 source_url = "https://github.com/libffi/libffi"
 tag_pattern = "v{{version}}"
+dependencies = ["autoconf", "automake"]
 script = """
 [ -f configure ] || ./autogen.sh
 ./configure --prefix=$PREFIX --disable-shared --enable-static

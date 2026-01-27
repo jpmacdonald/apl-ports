@@ -7,6 +7,6 @@ tag_pattern = "bzip2-{{version}}"
 version_pattern = "1.0.*"
 download_url_template = "https://sourceware.org/pub/bzip2/bzip2-{{version}}.tar.gz"
 script = """
-make -j$JOBS PREFIX=$PREFIX
-make install PREFIX=$PREFIX
+make -j$JOBS CC=clang PREFIX=$PREFIX CFLAGS="-Wl,-headerpad_max_install_names" LDFLAGS="-Wl,-headerpad_max_install_names"
+make install CC=clang PREFIX=$PREFIX CFLAGS="-Wl,-headerpad_max_install_names" LDFLAGS="-Wl,-headerpad_max_install_names"
 """
