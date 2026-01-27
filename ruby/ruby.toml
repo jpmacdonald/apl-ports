@@ -3,8 +3,9 @@ strategy = "build"
 name = "ruby"
 
 source_url = "https://github.com/ruby/ruby"
+# Ruby tags use underscores: v3_4_1, v3_4_0, etc.
 tag_pattern = "v{{version}}"
-version_pattern = "3.4.*"
+version_pattern = "3_4_*"
 dependencies = ["openssl@3.5", "zlib", "readline", "libyaml", "gmp"]
 script = """
 if [ -f configure ]; then
@@ -14,9 +15,9 @@ else
     echo "Note: Ruby releases include pre-generated configure"
 fi
 ./configure --prefix=$PREFIX \
-    --with-openssl-dir=$PREFIX \
-    --with-readline-dir=$PREFIX \
-    --with-libyaml-dir=$PREFIX \
+    --with-openssl-dir=$DEP_OPENSSL \
+    --with-readline-dir=$DEP_READLINE \
+    --with-libyaml-dir=$DEP_LIBYAML \
     --disable-install-doc
 make -j$JOBS
 make install
