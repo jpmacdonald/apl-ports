@@ -1,0 +1,43 @@
+# APL Ports - PR Validation
+#
+# Validates port manifests on pull requests by parsing
+# TOML files against the PortManifest schema.
+
+name: Validate Ports
+
+on:
+  pull_request:
+    paths:
+      - '**/*.toml'
+      - '!Cargo.toml'
+
+jobs:
+  validate:
+    name: Check Port Manifests
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout ports
+        uses: actions/checkout@v4
+
+      - name: Checkout apl (for apl-builder binary)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/apl
+          path: apl
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apl -> target
+
+      - name: Build apl-builder
+        working-directory: apl
+        run: cargo build --release -p apl-builder
+
+      - name: Validate Ports (dry run)
+        run: |
+          ./apl/target/release/apl-builder --ports-dir . --output-dir /dev/null --dry-run

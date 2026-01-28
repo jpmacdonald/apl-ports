@@ -51,3 +51,19 @@ jobs:
         with:
           name: ports-index
           path: output/
+
+      - name: Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: ~/.apl/logs/
+          if-no-files-found: ignore
+
+      - name: Trigger Index Rebuild
+        if: success()
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          repository: ${{ github.repository_owner }}/apl-packages
+          event-type: ports-updated
