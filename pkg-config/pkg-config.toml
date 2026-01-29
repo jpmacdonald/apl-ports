@@ -1,0 +1,15 @@
+[package]
+strategy = "build"
+name = "pkg-config"
+
+source_url = "https://gitlab.freedesktop.org/pkg-config/pkg-config"
+tag_pattern = "pkg-config-{{version}}"
+version_pattern = "0.29*"
+dependencies = []
+script = """
+./configure --prefix=$PREFIX \
+    --with-internal-glib \
+    --disable-host-tool
+make -j$JOBS
+make install
+"""

@@ -1,0 +1,19 @@
+[package]
+strategy = "build"
+name = "curl"
+
+source_url = "https://github.com/curl/curl"
+tag_pattern = "curl-{{version}}"
+version_pattern = "8_11_*"
+dependencies = ["openssl@3.5", "zlib"]
+script = """
+autoreconf -fi
+./configure --prefix=$PREFIX \
+    --with-openssl=$DEP_OPENSSL \
+    --with-zlib=$DEP_ZLIB \
+    --enable-threaded-resolver \
+    --disable-ldap \
+    --disable-ldaps
+make -j$JOBS
+make install
+"""

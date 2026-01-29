@@ -1,0 +1,14 @@
+[package]
+strategy = "build"
+name = "libiconv"
+
+source_url = "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-{{version}}.tar.gz"
+tag_pattern = "{{version}}"
+version_pattern = "1.17*"
+dependencies = []
+script = """
+./configure --prefix=$PREFIX \
+    --enable-extra-encodings
+make -j$JOBS
+make install
+"""
