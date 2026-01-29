@@ -1,0 +1,19 @@
+[package]
+strategy = "build"
+name = "libxml2"
+
+source_url = "https://github.com/GNOME/libxml2"
+tag_pattern = "v{{version}}"
+version_pattern = "2.12.*"
+dependencies = ["zlib", "xz", "libiconv"]
+script = """
+./autogen.sh --prefix=$PREFIX \
+    --disable-shared \
+    --enable-static \
+    --without-python \
+    --with-zlib=$DEP_ZLIB \
+    --with-lzma=$DEP_XZ \
+    --with-iconv=$DEP_LIBICONV
+make -j$JOBS
+make install
+"""

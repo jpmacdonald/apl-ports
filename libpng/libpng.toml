@@ -1,0 +1,15 @@
+[package]
+strategy = "build"
+name = "libpng"
+
+source_url = "https://github.com/pnggroup/libpng"
+tag_pattern = "v{{version}}"
+version_pattern = "1.6.*"
+dependencies = ["zlib"]
+script = """
+./configure --prefix=$PREFIX --disable-shared --enable-static \
+    CPPFLAGS="-I$DEP_ZLIB/include" \
+    LDFLAGS="-L$DEP_ZLIB/lib"
+make -j$JOBS
+make install
+"""

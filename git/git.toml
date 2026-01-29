@@ -1,0 +1,19 @@
+[package]
+strategy = "build"
+name = "git"
+
+source_url = "https://github.com/git/git"
+tag_pattern = "v{{version}}"
+version_pattern = "2.47.*"
+dependencies = ["openssl@3.5", "curl", "zlib", "expat", "pcre2"]
+script = """
+make prefix=$PREFIX \
+    NO_GETTEXT=1 \
+    NO_TCLTK=1 \
+    OPENSSLDIR=$DEP_OPENSSL \
+    CURLDIR=$DEP_CURL \
+    EXPATDIR=$DEP_EXPAT \
+    LIBPCREDIR=$DEP_PCRE2 \
+    -j$JOBS all
+make prefix=$PREFIX install
+"""

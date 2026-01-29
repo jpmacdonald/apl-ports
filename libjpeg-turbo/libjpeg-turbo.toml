@@ -1,0 +1,17 @@
+[package]
+strategy = "build"
+name = "libjpeg-turbo"
+
+source_url = "https://github.com/libjpeg-turbo/libjpeg-turbo"
+tag_pattern = "{{version}}"
+version_pattern = "3.0.*"
+dependencies = ["cmake"]
+script = """
+cmake -B build -G "Unix Makefiles" \
+    -DCMAKE_INSTALL_PREFIX=$PREFIX \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DENABLE_SHARED=OFF \
+    -DENABLE_STATIC=ON
+cmake --build build --parallel $JOBS
+cmake --install build
+"""
