@@ -1,0 +1,14 @@
+[package]
+strategy = "build"
+name = "flex"
+
+source_url = "https://github.com/westes/flex"
+tag_pattern = "v{{version}}"
+version_pattern = "2.6.*"
+dependencies = ["m4", "autoconf", "automake"]
+script = """
+./autogen.sh
+./configure --prefix=$PREFIX --disable-shared
+make -j$JOBS
+make install
+"""

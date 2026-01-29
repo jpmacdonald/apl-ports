@@ -1,0 +1,13 @@
+[package]
+strategy = "build"
+name = "perl"
+
+source_url = "https://github.com/Perl/perl5"
+tag_pattern = "v{{version}}"
+version_pattern = "5.40.*"
+dependencies = []
+script = """
+./Configure -des -Dprefix=$PREFIX -Dusethreads -Duseshrplib=false
+make -j$JOBS
+make install
+"""
