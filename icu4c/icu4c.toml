@@ -3,7 +3,7 @@ strategy = "build"
 name = "icu4c"
 source_url = "https://github.com/unicode-org/icu"
 tag_pattern = "release-{{version}}"
-version_pattern = "76-*"
+version_pattern = "76-1"
 dependencies = []
 script = """
 cd icu4c/source

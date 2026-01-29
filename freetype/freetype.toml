@@ -3,7 +3,7 @@ strategy = "build"
 name = "freetype"
 source_url = "https://github.com/freetype/freetype"
 tag_pattern = "VER-{{version}}"
-version_pattern = "2-13-*"
+version_pattern = "2-14-*"
 dependencies = ["libpng", "zlib", "bzip2"]
 script = """
 ./autogen.sh

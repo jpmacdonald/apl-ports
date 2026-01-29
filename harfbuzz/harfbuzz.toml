@@ -3,14 +3,14 @@ strategy = "build"
 name = "harfbuzz"
 source_url = "https://github.com/harfbuzz/harfbuzz"
 tag_pattern = "{{version}}"
-version_pattern = "10.*"
-dependencies = ["freetype", "glib", "icu4c"]
+version_pattern = "12.*"
+dependencies = ["freetype", "icu4c"]
 script = """
 meson setup build \
     --prefix=$PREFIX \
     --buildtype=release \
     -Dfreetype=enabled \
-    -Dglib=enabled \
+    -Dglib=disabled \
     -Dicu=enabled \
     -Dcairo=disabled \
     -Dtests=disabled \
