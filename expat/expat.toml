@@ -5,7 +5,7 @@ name = "expat"
 source_url = "https://github.com/libexpat/libexpat"
 tag_pattern = "R_{{version}}"
 version_pattern = "2_6_*"
-dependencies = []
+dependencies = ["autoconf", "automake"]
 script = """
 cd expat
 ./buildconf.sh
