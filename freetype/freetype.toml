@@ -1,0 +1,18 @@
+[package]
+strategy = "build"
+name = "freetype"
+source_url = "https://github.com/freetype/freetype"
+tag_pattern = "VER-{{version}}"
+version_pattern = "2-13-*"
+dependencies = ["libpng", "zlib", "bzip2"]
+script = """
+./autogen.sh
+./configure --prefix=$PREFIX \
+    --with-zlib=yes \
+    --with-bzip2=yes \
+    --with-png=yes \
+    --with-harfbuzz=no \
+    --enable-freetype-config
+make -j$JOBS
+make install
+"""

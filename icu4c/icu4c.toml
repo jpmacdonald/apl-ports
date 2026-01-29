@@ -1,0 +1,17 @@
+[package]
+strategy = "build"
+name = "icu4c"
+source_url = "https://github.com/unicode-org/icu"
+tag_pattern = "release-{{version}}"
+version_pattern = "76-*"
+dependencies = []
+script = """
+cd icu4c/source
+./configure --prefix=$PREFIX \
+    --disable-samples \
+    --disable-tests \
+    --enable-static \
+    --with-library-bits=64
+make -j$JOBS
+make install
+"""

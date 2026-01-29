@@ -1,0 +1,10 @@
+[package]
+strategy = "build"
+name = "meson"
+source_url = "https://github.com/mesonbuild/meson"
+tag_pattern = "{{version}}"
+version_pattern = "1.6.*"
+dependencies = ["python"]
+script = """
+python3 -m pip install --prefix=$PREFIX .
+"""

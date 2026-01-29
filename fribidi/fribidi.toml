@@ -1,0 +1,16 @@
+[package]
+strategy = "build"
+name = "fribidi"
+source_url = "https://github.com/fribidi/fribidi"
+tag_pattern = "v{{version}}"
+version_pattern = "1.0.*"
+dependencies = []
+script = """
+meson setup build \
+    --prefix=$PREFIX \
+    --buildtype=release \
+    -Dtests=false \
+    -Ddocs=false
+meson compile -C build
+meson install -C build
+"""
