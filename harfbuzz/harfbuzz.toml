@@ -4,17 +4,15 @@ name = "harfbuzz"
 source_url = "https://github.com/harfbuzz/harfbuzz"
 tag_pattern = "{{version}}"
 version_pattern = "12.*"
-dependencies = ["freetype", "icu4c"]
+dependencies = ["freetype", "icu4c", "autoconf", "automake", "libtool"]
 script = """
-meson setup build \
-    --prefix=$PREFIX \
-    --buildtype=release \
-    -Dfreetype=enabled \
-    -Dglib=disabled \
-    -Dicu=enabled \
-    -Dcairo=disabled \
-    -Dtests=disabled \
-    -Ddocs=disabled
-meson compile -C build
-meson install -C build
+./autogen.sh
+./configure --prefix=$PREFIX \
+    --with-freetype=yes \
+    --with-glib=no \
+    --with-icu=yes \
+    --with-cairo=no \
+    --with-gobject=no
+make -j$JOBS
+make install
 """
