@@ -2,8 +2,8 @@
 strategy = "build"
 name = "libiconv"
 
-source_url = "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-{{version}}.tar.gz"
-tag_pattern = "{{version}}"
+source_url = "https://github.com/gnu-mirror-unofficial/libiconv"
+tag_pattern = "v{{version}}"
 version_pattern = "1.17*"
 dependencies = []
 script = """

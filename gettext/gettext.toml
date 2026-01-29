@@ -2,8 +2,8 @@
 strategy = "build"
 name = "gettext"
 
-source_url = "https://ftp.gnu.org/pub/gnu/gettext/gettext-{{version}}.tar.gz"
-tag_pattern = "{{version}}"
+source_url = "https://github.com/autotools-mirror/gettext"
+tag_pattern = "v{{version}}"
 version_pattern = "0.22*"
 dependencies = ["ncurses"]
 script = """

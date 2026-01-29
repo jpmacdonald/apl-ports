@@ -5,7 +5,7 @@ name = "curl"
 source_url = "https://github.com/curl/curl"
 tag_pattern = "curl-{{version}}"
 version_pattern = "8_11_*"
-dependencies = ["openssl@3.5", "zlib"]
+dependencies = ["openssl@3.5", "zlib", "autoconf", "automake"]
 script = """
 autoreconf -fi
 ./configure --prefix=$PREFIX \
