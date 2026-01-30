@@ -44,7 +44,9 @@ jobs:
           APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./apl/target/release/apl-builder --ports-dir . --output-dir output
+          # Limit to 2 new versions per port to avoid 6-hour CI timeout.
+          # Source builds with PGO can take 30-60 minutes each.
+          ./apl/target/release/apl-builder --ports-dir . --output-dir output --max-versions 2
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
