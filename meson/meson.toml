@@ -6,5 +6,5 @@ tag_pattern = "{{version}}"
 version_pattern = "^1.10"
 dependencies = ["python"]
 script = """
-python3 -m pip install --prefix=$PREFIX .
+python3 -m pip install --no-build-isolation --prefix=$PREFIX .
 """
