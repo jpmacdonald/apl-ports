@@ -1,18 +1,35 @@
 # APL Ports - Update Index
 #
-# Runs the apl-builder to discover and index ports from vendor sources
-# (HashiCorp, AWS, Python, Node, etc.) and upload to R2.
+# Three-phase CI pipeline:
+# 1. Discovery: identify (port, version, arch) tuples needing builds
+# 2. Build: parallel matrix jobs, native arch per runner
+# 3. Notify: trigger index rebuild after all builds complete
 
 name: Update Ports Index
 
 on:
   schedule:
     - cron: '0 6 * * *'  # Daily at 6 AM UTC
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: 'Filter to specific port (optional)'
+        required: false
+        type: string
+      max_versions:
+        description: 'Max versions per port'
+        required: false
+        default: '2'
+        type: string
 
 jobs:
-  update-ports:
+  # Phase 1: Discovery
+  # Runs apl-builder --discover to identify what needs building
+  discover:
     runs-on: macos-14
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+      has_tasks: ${{ steps.discover.outputs.has_tasks }}
     steps:
       - name: Checkout Ports
         uses: actions/checkout@v4
@@ -35,7 +52,80 @@ jobs:
         working-directory: apl
         run: cargo build --release -p apl-builder
 
-      - name: Run apl-builder
+      - name: Discover build tasks
+        id: discover
+        env:
+          APL_ARTIFACT_STORE_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          APL_ARTIFACT_STORE_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          APL_ARTIFACT_STORE_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILTER_ARG=""
+          if [ -n "${{ inputs.filter }}" ]; then
+            FILTER_ARG="--filter ${{ inputs.filter }}"
+          fi
+
+          MAX_VERSIONS="${{ inputs.max_versions }}"
+          MAX_VERSIONS="${MAX_VERSIONS:-2}"
+
+          # Discovery mode outputs JSON to stdout, logs to stderr
+          ./apl/target/release/apl-builder \
+            --ports-dir . \
+            --discover \
+            --max-versions "$MAX_VERSIONS" \
+            $FILTER_ARG > discovery.json 2>&1 || true
+
+          cat discovery.json
+
+          # Check if we have any tasks
+          TASK_COUNT=$(jq '.tasks | length' discovery.json 2>/dev/null || echo "0")
+          echo "Found $TASK_COUNT build tasks"
+
+          if [ "$TASK_COUNT" -gt 0 ]; then
+            # Group tasks by (port, version) for the matrix
+            # Each matrix job will handle one (port, version) pair for its arch
+            MATRIX=$(jq -c '{include: [.tasks[] | {port, version, arch, runner: (if .arch == "arm64" then "macos-14" else "macos-13" end)}]}' discovery.json)
+            echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+            echo "has_tasks=true" >> $GITHUB_OUTPUT
+          else
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            echo "has_tasks=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Phase 2: Build
+  # Parallel matrix jobs, one per (port, version, arch)
+  # ARM64 runs on macos-14, x86_64 runs on macos-13
+  build:
+    needs: discover
+    if: needs.discover.outputs.has_tasks == 'true'
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+      - name: Checkout Ports
+        uses: actions/checkout@v4
+
+      - name: Checkout apl
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/apl
+          path: apl
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apl -> target
+
+      - name: Build apl-builder
+        working-directory: apl
+        run: cargo build --release -p apl-builder
+
+      - name: Build ${{ matrix.port }} ${{ matrix.version }} (${{ matrix.arch }})
         env:
           APL_ARTIFACT_STORE_ENABLED: "true"
           APL_ARTIFACT_STORE_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
@@ -44,28 +134,48 @@ jobs:
           APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Limit to 2 new versions per port to avoid 6-hour CI timeout.
-          # Source builds with PGO can take 30-60 minutes each.
-          ./apl/target/release/apl-builder --ports-dir . --output-dir output --max-versions 2
+          ./apl/target/release/apl-builder \
+            --ports-dir . \
+            --output-dir output \
+            --filter "${{ matrix.port }}" \
+            --arch "${{ matrix.arch }}" \
+            --max-versions 1
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ports-index
+          name: build-${{ matrix.port }}-${{ matrix.version }}-${{ matrix.arch }}
           path: output/
 
       - name: Upload Build Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
+          name: logs-${{ matrix.port }}-${{ matrix.version }}-${{ matrix.arch }}
           path: ~/.apl/logs/
           if-no-files-found: ignore
 
+  # Phase 3: Notify
+  # Trigger index rebuild after all builds complete
+  notify:
+    needs: [discover, build]
+    if: always() && needs.discover.outputs.has_tasks == 'true'
+    runs-on: ubuntu-latest
+    steps:
       - name: Trigger Index Rebuild
-        if: success()
+        if: needs.build.result == 'success'
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_TOKEN }}
           repository: ${{ github.repository_owner }}/apl-packages
           event-type: ports-updated
+
+      - name: Report Status
+        run: |
+          echo "Build result: ${{ needs.build.result }}"
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "All builds completed successfully, index rebuild triggered"
+          else
+            echo "Some builds failed, check individual job logs"
+            exit 1
+          fi
