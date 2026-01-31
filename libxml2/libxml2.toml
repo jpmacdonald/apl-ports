@@ -4,7 +4,7 @@ name = "libxml2"
 
 source_url = "https://github.com/GNOME/libxml2"
 tag_pattern = "v{{version}}"
-version_pattern = "2.12.*"
+version_pattern = "^2.12"
 dependencies = ["zlib", "xz", "libiconv"]
 script = """
 ./autogen.sh --prefix=$PREFIX \

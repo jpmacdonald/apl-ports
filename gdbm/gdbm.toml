@@ -4,7 +4,7 @@ name = "gdbm"
 
 source_url = "https://git.savannah.gnu.org/git/gdbm.git"
 tag_pattern = "v{{version}}"
-version_pattern = "1.24.*"
+version_pattern = "^1.24"
 script = """
 ./configure --prefix=$PREFIX --disable-shared --enable-static
 make -j$JOBS

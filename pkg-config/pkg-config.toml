@@ -4,7 +4,7 @@ name = "pkg-config"
 
 source_url = "https://github.com/unofficial-mirror/pkg-config"
 tag_pattern = "pkg-config-{{version}}"
-version_pattern = "0.29*"
+version_pattern = "~0.29"
 dependencies = []
 script = """
 ./configure --prefix=$PREFIX \

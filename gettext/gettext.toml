@@ -4,7 +4,7 @@ name = "gettext"
 
 source_url = "https://github.com/autotools-mirror/gettext"
 tag_pattern = "v{{version}}"
-version_pattern = "0.22*"
+version_pattern = "~0.22"
 dependencies = ["ncurses"]
 script = """
 ./configure --prefix=$PREFIX \

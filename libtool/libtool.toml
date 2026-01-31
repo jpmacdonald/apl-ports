@@ -4,7 +4,7 @@ name = "libtool"
 
 source_url = "https://github.com/autotools-mirror/libtool"
 tag_pattern = "v{{version}}"
-version_pattern = "2.4.*"
+version_pattern = "^2.4"
 dependencies = ["m4", "autoconf", "automake"]
 script = """
 ./bootstrap

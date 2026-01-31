@@ -4,7 +4,7 @@ name = "libpng"
 
 source_url = "https://github.com/pnggroup/libpng"
 tag_pattern = "v{{version}}"
-version_pattern = "1.6.*"
+version_pattern = "^1.6"
 dependencies = ["zlib"]
 script = """
 ./configure --prefix=$PREFIX --disable-shared --enable-static \

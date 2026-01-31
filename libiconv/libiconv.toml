@@ -4,7 +4,7 @@ name = "libiconv"
 
 source_url = "https://github.com/gnu-mirror-unofficial/libiconv"
 tag_pattern = "v{{version}}"
-version_pattern = "^1\\.17"
+version_pattern = "^1.17"
 dependencies = []
 script = """
 ./configure --prefix=$PREFIX \

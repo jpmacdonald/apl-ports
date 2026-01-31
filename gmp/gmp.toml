@@ -4,7 +4,7 @@ name = "gmp"
 
 source_url = "https://github.com/alisw/GMP"
 tag_pattern = "v{{version}}"
-version_pattern = "^6\\.3\\."
+version_pattern = "^6.3"
 script = """
 ./configure --prefix=$PREFIX \
     --disable-shared \

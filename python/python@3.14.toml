@@ -4,7 +4,7 @@ name = "python@3.14"
 
 source_url = "https://github.com/python/cpython"
 tag_pattern = "v{{version}}"
-version_pattern = "3.14.*"
+version_pattern = "^3.14"
 dependencies = [
     "openssl@3.5",
     "sqlite",
