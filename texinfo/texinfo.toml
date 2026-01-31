@@ -2,7 +2,7 @@
 strategy = "build"
 name = "texinfo"
 
-source_url = "https://github.com/autotools-mirror/texinfo"
+source_url = "https://git.savannah.gnu.org/git/texinfo.git"
 tag_pattern = "texinfo-{{version}}"
 version_pattern = "~7.1"
 dependencies = ["ncurses"]

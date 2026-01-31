@@ -2,7 +2,7 @@
 strategy = "build"
 name = "gettext"
 
-source_url = "https://github.com/autotools-mirror/gettext"
+source_url = "https://git.savannah.gnu.org/git/gettext.git"
 tag_pattern = "v{{version}}"
 version_pattern = "^0.23"
 dependencies = ["ncurses"]

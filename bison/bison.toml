@@ -2,7 +2,7 @@
 strategy = "build"
 name = "bison"
 
-source_url = "https://github.com/akimd/bison"
+source_url = "https://git.savannah.gnu.org/git/bison.git"
 tag_pattern = "v{{version}}"
 version_pattern = "^3.8"
 dependencies = ["m4"]
