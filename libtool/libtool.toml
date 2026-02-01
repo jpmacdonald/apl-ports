@@ -4,9 +4,8 @@ name = "libtool"
 
 source_url = "https://git.savannah.gnu.org/git/libtool.git"
 version_pattern = "v{{version}}"
-dependencies = ["m4", "autoconf", "automake"]
+download_url_template = "https://ftp.gnu.org/gnu/libtool/libtool-{{version}}.tar.gz"
 script = """
-./bootstrap
 ./configure --prefix=$PREFIX
 make -j$JOBS
 make install

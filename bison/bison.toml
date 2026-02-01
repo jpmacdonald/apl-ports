@@ -4,9 +4,9 @@ name = "bison"
 
 source_url = "https://git.savannah.gnu.org/git/bison.git"
 version_pattern = "v{{version}}"
+download_url_template = "https://ftp.gnu.org/gnu/bison/bison-{{version}}.tar.gz"
 dependencies = ["m4"]
 script = """
-./bootstrap
 ./configure --prefix=$PREFIX
 make -j$JOBS
 make install

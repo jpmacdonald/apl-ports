@@ -4,9 +4,9 @@ name = "texinfo"
 
 source_url = "https://git.savannah.gnu.org/git/texinfo.git"
 version_pattern = "texinfo-{{version}}"
+download_url_template = "https://ftp.gnu.org/gnu/texinfo/texinfo-{{version}}.tar.gz"
 dependencies = ["ncurses"]
 script = """
-./autogen.sh
 ./configure --prefix=$PREFIX
 make -j$JOBS
 make install

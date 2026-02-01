@@ -4,6 +4,7 @@ name = "gettext"
 
 source_url = "https://git.savannah.gnu.org/git/gettext.git"
 version_pattern = "v{{version}}"
+download_url_template = "https://ftp.gnu.org/gnu/gettext/gettext-{{version}}.tar.gz"
 dependencies = ["ncurses"]
 script = """
 ./configure --prefix=$PREFIX \
