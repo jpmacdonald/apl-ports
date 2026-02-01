@@ -1,9 +1,8 @@
 # APL Ports - Update Index
 #
-# Three-phase CI pipeline:
-# 1. Discovery: identify (port, version, arch) tuples needing builds
-# 2. Build: parallel matrix jobs, native arch per runner
-# 3. Notify: trigger index rebuild after all builds complete
+# Two-phase CI pipeline:
+# 1. Discovery: check if any ports need building, per-arch
+# 2. Build: one job per architecture, builder handles layer ordering internally
 
 name: Update Ports Index
 
@@ -24,17 +23,17 @@ on:
 
 jobs:
   # Phase 1: Discovery
-  # Runs apl-builder --discover to identify what needs building
+  # Check what needs building per-arch to avoid spinning up unnecessary runners
   discover:
     runs-on: macos-14
     outputs:
-      matrix: ${{ steps.discover.outputs.matrix }}
-      has_tasks: ${{ steps.discover.outputs.has_tasks }}
+      has_arm64_tasks: ${{ steps.discover.outputs.has_arm64_tasks }}
+      has_x86_64_tasks: ${{ steps.discover.outputs.has_x86_64_tasks }}
     steps:
       - name: Checkout Ports
         uses: actions/checkout@v4
 
-      - name: Checkout apl (for apl-builder binary)
+      - name: Checkout apl
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/apl
@@ -69,51 +68,46 @@ jobs:
           fi
 
           MAX_VERSIONS="${{ inputs.max_versions }}"
-          MAX_VERSIONS="${MAX_VERSIONS:-3}"
+          MAX_VERSIONS="${MAX_VERSIONS:-2}"
 
-          # Discovery mode outputs JSON to stdout, logs to stderr
-          # Capture stderr separately for debugging
           ./apl/target/release/apl-builder \
             --ports-dir . \
             --discover \
             --max-versions "$MAX_VERSIONS" \
             $FILTER_ARG > discovery.json 2>discovery.log
 
-          # Show discovery log for debugging
           cat discovery.log
 
-          # Validate JSON output
           if ! jq -e '.tasks' discovery.json > /dev/null 2>&1; then
             echo "::error::Discovery failed - invalid JSON output"
             cat discovery.json >&2
             exit 1
           fi
 
-          # Check if we have any tasks
-          TASK_COUNT=$(jq '.tasks | length' discovery.json)
-          echo "Found $TASK_COUNT build tasks"
+          # Check tasks per arch
+          ARM64_COUNT=$(jq '[.tasks[] | select(.arch == "arm64")] | length' discovery.json)
+          X86_64_COUNT=$(jq '[.tasks[] | select(.arch == "x86_64")] | length' discovery.json)
 
-          if [ "$TASK_COUNT" -gt 0 ]; then
-            # Group tasks by (port, version) for the matrix
-            # Each matrix job will handle one (port, version) pair for its arch
-            MATRIX=$(jq -c '{include: [.tasks[] | {port, version, arch, runner: (if .arch == "arm64" then "macos-14" else "macos-13" end)}]}' discovery.json)
-            echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
-            echo "has_tasks=true" >> $GITHUB_OUTPUT
+          echo "Found $ARM64_COUNT arm64 tasks, $X86_64_COUNT x86_64 tasks"
+
+          if [ "$ARM64_COUNT" -gt 0 ]; then
+            echo "has_arm64_tasks=true" >> $GITHUB_OUTPUT
           else
-            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
-            echo "has_tasks=false" >> $GITHUB_OUTPUT
+            echo "has_arm64_tasks=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [ "$X86_64_COUNT" -gt 0 ]; then
+            echo "has_x86_64_tasks=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_x86_64_tasks=false" >> $GITHUB_OUTPUT
           fi
 
   # Phase 2: Build
-  # Parallel matrix jobs, one per (port, version, arch)
-  # ARM64 runs on macos-14, x86_64 runs on macos-13
-  build:
+  # Single job per architecture - builder handles dependency ordering internally
+  build-arm64:
     needs: discover
-    if: needs.discover.outputs.has_tasks == 'true'
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+    if: needs.discover.outputs.has_arm64_tasks == 'true'
+    runs-on: macos-14
     steps:
       - name: Checkout Ports
         uses: actions/checkout@v4
@@ -136,7 +130,7 @@ jobs:
         working-directory: apl
         run: cargo build --release -p apl-builder
 
-      - name: Build ${{ matrix.port }} ${{ matrix.version }} (${{ matrix.arch }})
+      - name: Build ports (arm64)
         env:
           APL_ARTIFACT_STORE_ENABLED: "true"
           APL_ARTIFACT_STORE_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
@@ -145,36 +139,95 @@ jobs:
           APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          FILTER_ARG=""
+          if [ -n "${{ inputs.filter }}" ]; then
+            FILTER_ARG="--filter ${{ inputs.filter }}"
+          fi
+
+          MAX_VERSIONS="${{ inputs.max_versions }}"
+          MAX_VERSIONS="${MAX_VERSIONS:-2}"
+
           ./apl/target/release/apl-builder \
             --ports-dir . \
             --output-dir output \
-            --filter "${{ matrix.port }}" \
-            --arch "${{ matrix.arch }}" \
-            --max-versions 1
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.port }}-${{ matrix.version }}-${{ matrix.arch }}
-          path: output/
+            --arch arm64 \
+            --max-versions "$MAX_VERSIONS" \
+            $FILTER_ARG
 
       - name: Upload Build Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.port }}-${{ matrix.version }}-${{ matrix.arch }}
+          name: logs-arm64
+          path: ~/.apl/logs/
+          if-no-files-found: ignore
+
+  build-x86_64:
+    needs: discover
+    if: needs.discover.outputs.has_x86_64_tasks == 'true'
+    runs-on: macos-13
+    steps:
+      - name: Checkout Ports
+        uses: actions/checkout@v4
+
+      - name: Checkout apl
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/apl
+          path: apl
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apl -> target
+
+      - name: Build apl-builder
+        working-directory: apl
+        run: cargo build --release -p apl-builder
+
+      - name: Build ports (x86_64)
+        env:
+          APL_ARTIFACT_STORE_ENABLED: "true"
+          APL_ARTIFACT_STORE_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          APL_ARTIFACT_STORE_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          APL_ARTIFACT_STORE_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILTER_ARG=""
+          if [ -n "${{ inputs.filter }}" ]; then
+            FILTER_ARG="--filter ${{ inputs.filter }}"
+          fi
+
+          MAX_VERSIONS="${{ inputs.max_versions }}"
+          MAX_VERSIONS="${MAX_VERSIONS:-2}"
+
+          ./apl/target/release/apl-builder \
+            --ports-dir . \
+            --output-dir output \
+            --arch x86_64 \
+            --max-versions "$MAX_VERSIONS" \
+            $FILTER_ARG
+
+      - name: Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-x86_64
           path: ~/.apl/logs/
           if-no-files-found: ignore
 
   # Phase 3: Notify
-  # Trigger index rebuild after all builds complete
   notify:
-    needs: [discover, build]
-    if: always() && needs.discover.outputs.has_tasks == 'true'
+    needs: [discover, build-arm64, build-x86_64]
+    if: always() && (needs.discover.outputs.has_arm64_tasks == 'true' || needs.discover.outputs.has_x86_64_tasks == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Index Rebuild
-        if: needs.build.result == 'success'
+        if: needs.build-arm64.result != 'failure' && needs.build-x86_64.result != 'failure'
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_TOKEN }}
@@ -183,10 +236,9 @@ jobs:
 
       - name: Report Status
         run: |
-          echo "Build result: ${{ needs.build.result }}"
-          if [ "${{ needs.build.result }}" == "success" ]; then
-            echo "All builds completed successfully, index rebuild triggered"
-          else
-            echo "Some builds failed, check individual job logs"
+          echo "arm64 build: ${{ needs.build-arm64.result }}"
+          echo "x86_64 build: ${{ needs.build-x86_64.result }}"
+          if [ "${{ needs.build-arm64.result }}" == "failure" ] || [ "${{ needs.build-x86_64.result }}" == "failure" ]; then
+            echo "Some builds failed, check job logs"
             exit 1
           fi
