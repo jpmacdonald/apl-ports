@@ -3,7 +3,7 @@ strategy = "build"
 name = "libffi"
 
 source_url = "https://github.com/libffi/libffi"
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 dependencies = ["autoconf", "automake", "libtool"]
 script = """
 [ -f configure ] || ./autogen.sh

@@ -3,7 +3,7 @@ strategy = "build"
 name = "libyaml"
 
 source_url = "https://github.com/yaml/libyaml"
-tag_pattern = "{{version}}"
+version_pattern = "{{version}}"
 dependencies = ["autoconf", "automake", "libtool"]
 script = """
 [ -f configure ] || ./autogen.sh

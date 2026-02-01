@@ -2,7 +2,7 @@
 strategy = "build"
 name = "fribidi"
 source_url = "https://github.com/fribidi/fribidi"
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 version_pattern = "^1.0"
 dependencies = ["autoconf", "automake", "libtool"]
 script = """

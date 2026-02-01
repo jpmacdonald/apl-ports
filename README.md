@@ -17,11 +17,10 @@ Ports are packages that can't be distributed as prebuilt binaries (e.g., Python,
 ```toml
 [package]
 strategy = "build"
-name = "openssl"
+name = "openssl@3.5"
 
 source_url = "https://github.com/openssl/openssl"
-tag_pattern = "openssl-{{version}}"
-version_pattern = "3.5.*"
+version_pattern = "openssl-{{version}}"
 dependencies = ["perl"]
 script = """
 ./Configure --prefix=$PREFIX darwin64-arm64-cc
@@ -29,6 +28,8 @@ make -j$JOBS
 make install
 """
 ```
+
+Note: Version filtering is derived from the `@suffix` in the package name. For example, `openssl@3.5` automatically filters to versions matching `^3.5`.
 
 ## Build environment
 

@@ -2,7 +2,7 @@
 strategy = "build"
 name = "meson"
 source_url = "https://github.com/mesonbuild/meson"
-tag_pattern = "{{version}}"
+version_pattern = "{{version}}"
 version_pattern = "^1.10"
 dependencies = ["python"]
 script = """

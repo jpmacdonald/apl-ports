@@ -3,7 +3,7 @@ strategy = "build"
 name = "libjpeg-turbo"
 
 source_url = "https://github.com/libjpeg-turbo/libjpeg-turbo"
-tag_pattern = "{{version}}"
+version_pattern = "{{version}}"
 version_pattern = "^3.0"
 dependencies = ["cmake"]
 script = """

@@ -3,7 +3,7 @@ strategy = "build"
 name = "m4"
 
 source_url = "https://git.savannah.gnu.org/git/m4.git"
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 version_pattern = "^1.4"
 download_url_template = "https://ftp.gnu.org/gnu/m4/m4-{{version}}.tar.gz"
 script = """

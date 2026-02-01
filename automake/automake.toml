@@ -3,7 +3,7 @@ strategy = "build"
 name = "automake"
 
 source_url = "https://git.savannah.gnu.org/git/automake.git"
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 version_pattern = "^1.16"
 download_url_template = "https://ftp.gnu.org/gnu/automake/automake-{{version}}.tar.gz"
 dependencies = ["autoconf"]

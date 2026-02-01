@@ -3,7 +3,7 @@ strategy = "build"
 name = "readline"
 
 source_url = "https://git.savannah.gnu.org/git/readline.git"
-tag_pattern = "readline-{{version}}"
+version_pattern = "readline-{{version}}"
 download_url_template = "https://ftp.gnu.org/gnu/readline/readline-{{version}}.tar.gz"
 dependencies = ["ncurses"]
 script = """

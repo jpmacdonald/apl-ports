@@ -61,25 +61,36 @@ jobs:
           APL_ARTIFACT_STORE_BUCKET: ${{ secrets.R2_BUCKET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           FILTER_ARG=""
           if [ -n "${{ inputs.filter }}" ]; then
             FILTER_ARG="--filter ${{ inputs.filter }}"
           fi
 
           MAX_VERSIONS="${{ inputs.max_versions }}"
-          MAX_VERSIONS="${MAX_VERSIONS:-2}"
+          MAX_VERSIONS="${MAX_VERSIONS:-3}"
 
           # Discovery mode outputs JSON to stdout, logs to stderr
+          # Capture stderr separately for debugging
           ./apl/target/release/apl-builder \
             --ports-dir . \
             --discover \
             --max-versions "$MAX_VERSIONS" \
-            $FILTER_ARG > discovery.json 2>&1 || true
+            $FILTER_ARG > discovery.json 2>discovery.log
 
-          cat discovery.json
+          # Show discovery log for debugging
+          cat discovery.log
+
+          # Validate JSON output
+          if ! jq -e '.tasks' discovery.json > /dev/null 2>&1; then
+            echo "::error::Discovery failed - invalid JSON output"
+            cat discovery.json >&2
+            exit 1
+          fi
 
           # Check if we have any tasks
-          TASK_COUNT=$(jq '.tasks | length' discovery.json 2>/dev/null || echo "0")
+          TASK_COUNT=$(jq '.tasks | length' discovery.json)
           echo "Found $TASK_COUNT build tasks"
 
           if [ "$TASK_COUNT" -gt 0 ]; then

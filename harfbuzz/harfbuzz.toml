@@ -2,7 +2,7 @@
 strategy = "build"
 name = "harfbuzz"
 source_url = "https://github.com/harfbuzz/harfbuzz"
-tag_pattern = "{{version}}"
+version_pattern = "{{version}}"
 version_pattern = "^12"
 dependencies = ["freetype", "icu4c", "autoconf", "automake", "libtool"]
 script = """

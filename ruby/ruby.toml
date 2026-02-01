@@ -4,7 +4,7 @@ name = "ruby"
 
 source_url = "https://github.com/ruby/ruby"
 # Ruby tags use underscores: v3_4_1, v3_4_0, etc.
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 dependencies = ["openssl@3.5", "zlib", "readline", "libyaml", "gmp"]
 script = """
 if [ -f configure ]; then

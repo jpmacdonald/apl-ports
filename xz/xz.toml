@@ -3,7 +3,7 @@ strategy = "build"
 name = "xz"
 
 source_url = "https://github.com/tukaani-project/xz"
-tag_pattern = "v{{version}}"
+version_pattern = "v{{version}}"
 script = """
 [ -f configure ] || ./autogen.sh
 ./configure --prefix=$PREFIX --disable-shared --enable-static
