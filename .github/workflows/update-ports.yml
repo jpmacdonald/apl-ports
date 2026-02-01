@@ -165,7 +165,7 @@ jobs:
   build-x86_64:
     needs: discover
     if: needs.discover.outputs.has_x86_64_tasks == 'true'
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - name: Checkout Ports
         uses: actions/checkout@v4
