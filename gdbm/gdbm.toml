@@ -4,6 +4,7 @@ name = "gdbm"
 
 source_url = "https://git.savannah.gnu.org/git/gdbm.git"
 version_pattern = "v{{version}}"
+download_url_template = "https://ftp.gnu.org/gnu/gdbm/gdbm-{{version}}.tar.gz"
 script = """
 ./configure --prefix=$PREFIX --disable-shared --enable-static
 make -j$JOBS

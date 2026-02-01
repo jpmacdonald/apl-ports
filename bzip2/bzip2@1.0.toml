@@ -1,6 +1,6 @@
 [package]
 strategy = "build"
-name = "bzip2"
+name = "bzip2@1.0"
 
 source_url = "https://sourceware.org/git/bzip2.git"
 version_pattern = "bzip2-{{version}}"
