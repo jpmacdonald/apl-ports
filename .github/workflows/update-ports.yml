@@ -29,6 +29,7 @@ jobs:
     outputs:
       has_arm64_tasks: ${{ steps.discover.outputs.has_arm64_tasks }}
       has_x86_64_tasks: ${{ steps.discover.outputs.has_x86_64_tasks }}
+      apl_sha: ${{ steps.apl-sha.outputs.sha }}
     steps:
       - name: Checkout Ports
         uses: actions/checkout@v4
@@ -39,15 +40,29 @@ jobs:
           repository: ${{ github.repository_owner }}/apl
           path: apl
 
+      - name: Get apl commit SHA
+        id: apl-sha
+        run: echo "sha=$(git -C apl rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Cache apl-builder binary
+        id: cache-builder
+        uses: actions/cache@v4
+        with:
+          path: apl/target/release/apl-builder
+          key: apl-builder-macos-arm64-${{ steps.apl-sha.outputs.sha }}
+
       - name: Setup Rust
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust Cache
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: apl -> target
 
       - name: Build apl-builder
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         working-directory: apl
         run: cargo build --release -p apl-builder
 
@@ -118,15 +133,25 @@ jobs:
           repository: ${{ github.repository_owner }}/apl
           path: apl
 
+      - name: Cache apl-builder binary
+        id: cache-builder
+        uses: actions/cache@v4
+        with:
+          path: apl/target/release/apl-builder
+          key: apl-builder-macos-arm64-${{ needs.discover.outputs.apl_sha }}
+
       - name: Setup Rust
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust Cache
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: apl -> target
 
       - name: Build apl-builder
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         working-directory: apl
         run: cargo build --release -p apl-builder
 
@@ -176,15 +201,25 @@ jobs:
           repository: ${{ github.repository_owner }}/apl
           path: apl
 
+      - name: Cache apl-builder binary
+        id: cache-builder
+        uses: actions/cache@v4
+        with:
+          path: apl/target/release/apl-builder
+          key: apl-builder-macos-x86_64-${{ needs.discover.outputs.apl_sha }}
+
       - name: Setup Rust
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust Cache
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: apl -> target
 
       - name: Build apl-builder
+        if: steps.cache-builder.outputs.cache-hit != 'true'
         working-directory: apl
         run: cargo build --release -p apl-builder
 
