@@ -3,7 +3,6 @@ strategy = "build"
 name = "meson"
 source_url = "https://github.com/mesonbuild/meson"
 version_pattern = "{{version}}"
-version_pattern = "^1.10"
 dependencies = ["python"]
 script = """
 python3 -m pip install --no-build-isolation --prefix=$PREFIX .

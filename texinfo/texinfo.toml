@@ -4,7 +4,6 @@ name = "texinfo"
 
 source_url = "https://git.savannah.gnu.org/git/texinfo.git"
 version_pattern = "texinfo-{{version}}"
-version_pattern = "~7.1"
 dependencies = ["ncurses"]
 script = """
 ./autogen.sh

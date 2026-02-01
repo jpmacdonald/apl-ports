@@ -4,7 +4,6 @@ name = "ncurses"
 
 source_url = "https://github.com/mirror/ncurses"
 version_pattern = "v{{version}}"
-version_pattern = "^6"
 script = """
 ./configure --prefix=$PREFIX \
     --without-shared \

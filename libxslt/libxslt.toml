@@ -4,7 +4,6 @@ name = "libxslt"
 
 source_url = "https://github.com/GNOME/libxslt"
 version_pattern = "v{{version}}"
-version_pattern = "^1.1"
 dependencies = ["libxml2"]
 script = """
 ./autogen.sh --prefix=$PREFIX \

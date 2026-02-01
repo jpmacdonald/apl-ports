@@ -4,7 +4,6 @@ name = "openssl@3.5"
 
 source_url = "https://github.com/openssl/openssl"
 version_pattern = "openssl-{{version}}"
-version_pattern = "^3.5"
 dependencies = ["zlib"]
 script = """
 if [ "$ARCH" = "aarch64" ]; then

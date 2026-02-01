@@ -4,7 +4,6 @@ name = "sqlite"
 
 source_url = "https://github.com/sqlite/sqlite"
 version_pattern = "version-{{version}}"
-version_pattern = "^3"
 script = """
 ./configure --prefix=$PREFIX --disable-shared --enable-static --enable-fts5 --enable-json1 --enable-session
 make -j$JOBS

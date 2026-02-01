@@ -4,7 +4,6 @@ name = "libjpeg-turbo"
 
 source_url = "https://github.com/libjpeg-turbo/libjpeg-turbo"
 version_pattern = "{{version}}"
-version_pattern = "^3.0"
 dependencies = ["cmake"]
 script = """
 cmake -B build -G "Unix Makefiles" \

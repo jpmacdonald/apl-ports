@@ -4,7 +4,6 @@ name = "ninja"
 
 source_url = "https://github.com/ninja-build/ninja"
 version_pattern = "v{{version}}"
-version_pattern = "^1.12"
 dependencies = ["cmake"]
 script = """
 cmake -B build -DCMAKE_BUILD_TYPE=Release

@@ -4,7 +4,6 @@ name = "python@nightly"
 
 source_url = "https://github.com/python/cpython"
 version_pattern = "main" # Points to the main branch for "nightly"
-version_pattern = "^3.15"
 dependencies = [
     "openssl@3.5",
     "sqlite",
